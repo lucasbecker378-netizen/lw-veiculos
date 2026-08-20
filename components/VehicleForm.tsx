@@ -180,8 +180,16 @@ function formatPrice(value:number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value || 0);
+}
+
+function formatPriceField(value:number) {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
 }
 
 function generateProfessionalDescription(data:{
@@ -272,6 +280,8 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
     featured: initial?.featured || false,
   });
 
+  const [priceText, setPriceText] = useState(() => formatPriceField(Number(initial?.price || 0)));
+
   const [files, setFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{id:string;url:string;sort_order:number}[]>([]);
   const [message, setMessage] = useState("");
@@ -287,6 +297,10 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
       index,
     }));
   }, [files]);
+
+  useEffect(() => {
+    setPriceText(formatPriceField(Number(form.price || 0)));
+  }, [form.price]);
 
   useEffect(() => {
     if (!initial?.id) return;
@@ -306,7 +320,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
     if (!form.brand) items.push("marca");
     if (!form.model) items.push("modelo");
     if (!form.year) items.push("ano");
-    if (!form.price) items.push("preço");
+    if (!parseBRL(priceText)) items.push("preço");
     if (!form.color) items.push("cor");
     if (!form.fuel) items.push("combustível");
     return items;
@@ -400,7 +414,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
       version: form.version,
       year: Number(form.year),
       model_year: Number(form.model_year),
-      price: Number(form.price),
+      price: parseBRL(priceText),
       transmission: form.transmission,
       fuel: form.fuel,
       color: form.color,
@@ -428,7 +442,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
       year: Number(form.year),
       model_year: Number(form.model_year),
       mileage: 0,
-      price: Number(form.price),
+      price: parseBRL(priceText),
     };
 
     let vehicleId = initial?.id;
@@ -565,7 +579,27 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
       {input("slug","Slug (endereço do anúncio)")}
       {input("year","Ano","number")}
       {input("model_year","Ano modelo","number")}
-      {input("price","Preço","number")}
+      <label>
+        <span className="text-sm font-bold">Preço</span>
+        <div className="mt-2 flex items-center rounded-2xl border border-black/10 bg-white px-4">
+          <span className="mr-2 font-bold text-neutral-500">R$</span>
+          <input
+            type="text"
+            inputMode="decimal"
+            className="w-full bg-transparent py-3 outline-none"
+            value={priceText}
+            onChange={e => setPriceText(e.target.value.replace(/[^0-9.,]/g, ""))}
+            onBlur={() => {
+              const value = parseBRL(priceText);
+              setField("price", value);
+              setPriceText(formatPriceField(value));
+            }}
+            placeholder="39.900,00"
+            required
+          />
+        </div>
+        <p className="mt-1 text-xs text-neutral-500">Formato: 39.900,00</p>
+      </label>
       {input("color","Cor")}
 
       <label>
