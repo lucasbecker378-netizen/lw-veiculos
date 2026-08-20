@@ -1,3 +1,43 @@
 "use client";
-import {Vehicle} from "@/lib/types";import {km,money} from "@/lib/format";import {useEffect,useState} from "react";import {supabase} from "@/lib/supabase";
-export default function VehicleCard({vehicle}:{vehicle:Vehicle}){const[image,setImage]=useState<string|null>(null);useEffect(()=>{supabase.from("vehicle_images").select("url").eq("vehicle_id",vehicle.id).order("sort_order").limit(1).maybeSingle().then(({data})=>setImage(data?.url??null))},[vehicle.id]);return <article className="overflow-hidden rounded-2xl border bg-white"><a href={`/veiculo/${vehicle.slug}`}>{image?<img src={image} alt={`${vehicle.brand} ${vehicle.model}`} className="aspect-[4/3] w-full object-cover"/>:<div className="flex aspect-[4/3] items-center justify-center bg-neutral-200 text-neutral-500">SEM FOTO</div>}</a><div className="p-5"><p className="text-xs font-bold uppercase text-neutral-500">{vehicle.year}/{vehicle.model_year||vehicle.year} · {km(vehicle.mileage)}</p><h3 className="mt-2 text-xl font-black">{vehicle.brand} {vehicle.model}</h3>{vehicle.version&&<p className="mt-1 text-sm text-neutral-500">{vehicle.version}</p>}<p className="mt-5 text-2xl font-black">{money(vehicle.price)}</p><a href={`/veiculo/${vehicle.slug}`} className="btn-outline-dark mt-5 block rounded-xl px-4 py-3 text-center text-sm font-bold">Ver veículo</a></div></article>}
+import {Vehicle} from "@/lib/types";
+import {money} from "@/lib/format";
+import {useEffect,useState} from "react";
+import {supabase} from "@/lib/supabase";
+
+export default function VehicleCard({vehicle}:{vehicle:Vehicle}) {
+  const [image,setImage]=useState<string|null>(null);
+
+  useEffect(()=>{
+    supabase
+      .from("vehicle_images")
+      .select("url")
+      .eq("vehicle_id",vehicle.id)
+      .order("sort_order")
+      .limit(1)
+      .maybeSingle()
+      .then(({data})=>setImage(data?.url??null));
+  },[vehicle.id]);
+
+  return (
+    <article className="overflow-hidden rounded-2xl border bg-white">
+      <a href={`/veiculo/${vehicle.slug}`}>
+        {image
+          ? <img src={image} alt={`${vehicle.brand} ${vehicle.model}`} className="aspect-[4/3] w-full object-cover"/>
+          : <div className="flex aspect-[4/3] items-center justify-center bg-neutral-200 text-neutral-500">SEM FOTO</div>}
+      </a>
+
+      <div className="p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs font-bold uppercase text-neutral-500">{vehicle.year}/{vehicle.model_year||vehicle.year} · {vehicle.transmission}</p>
+          {vehicle.vehicle_code&&<span className="text-[11px] font-black text-neutral-400">{vehicle.vehicle_code}</span>}
+        </div>
+        <h3 className="mt-2 text-xl font-black">{vehicle.brand} {vehicle.model}</h3>
+        {vehicle.version&&<p className="mt-1 text-sm text-neutral-500">{vehicle.version}</p>}
+        <p className="mt-5 text-2xl font-black">{money(vehicle.price)}</p>
+        <a href={`/veiculo/${vehicle.slug}`} className="btn-outline-dark mt-5 block rounded-xl px-4 py-3 text-center text-sm font-bold">
+          Ver veículo
+        </a>
+      </div>
+    </article>
+  );
+}
