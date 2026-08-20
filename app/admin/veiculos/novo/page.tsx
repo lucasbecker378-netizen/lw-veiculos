@@ -1,0 +1,1 @@
+import AdminGuard from "@/components/AdminGuard";import VehicleForm from "@/components/VehicleForm";export default function Page(){return <AdminGuard><main className="container py-12"><h1 className="text-4xl font-black">Cadastrar veículo</h1><VehicleForm/></main></AdminGuard>}

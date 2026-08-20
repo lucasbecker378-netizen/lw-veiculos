@@ -1,0 +1,3 @@
+"use client";
+import {useEffect,useState} from "react";import {supabase} from "@/lib/supabase";
+export default function AdminGuard({children}:{children:React.ReactNode}){const[a,setA]=useState<boolean|null>(null);useEffect(()=>{(async()=>{const s=await supabase.auth.getSession();const u=s.data.session?.user;if(!u){location.href="/admin/login";return}const r=await supabase.from("admins").select("user_id").eq("user_id",u.id).maybeSingle();if(!r.data){await supabase.auth.signOut();location.href="/admin/login";return}setA(true)})()},[]);if(a===null)return <div className="container py-20">Verificando acesso...</div>;return <>{children}</>}

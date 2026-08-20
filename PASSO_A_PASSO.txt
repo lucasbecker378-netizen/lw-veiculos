@@ -1,0 +1,23 @@
+LW VEÍCULOS — PASSO A PASSO
+
+1. Extraia este ZIP e abra a pasta lw-veiculos-completo no VS Code.
+2. Terminal: npm.cmd install
+3. Supabase > SQL Editor > New query.
+4. Abra supabase/setup.sql, copie tudo, cole no SQL Editor e clique Run.
+5. Supabase > Authentication > Users > Add user. Crie o administrador.
+6. Copie o UUID/ID do usuário.
+7. Abra supabase/add-first-admin.sql, troque UUID_DO_USUARIO pelo ID, cole no SQL Editor e clique Run.
+8. No Supabase, abra Project Settings > API (ou botão Connect) e copie:
+   - Project URL
+   - anon/public key
+   NÃO use service_role.
+9. Na raiz do projeto, copie .env.local.example e renomeie para .env.local.
+10. Preencha:
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_WHATSAPP=55DDDNUMERO
+11. Terminal: npm.cmd run dev
+12. Site: http://localhost:3000
+13. Admin: http://localhost:3000/admin/login
+14. Entre, clique + Novo veículo, cadastre e salve.
+15. Depois faremos GitHub + Vercel + domínio.

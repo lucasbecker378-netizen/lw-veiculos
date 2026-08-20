@@ -1,0 +1,2 @@
+export const money=(v:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(v);
+export const km=(v:number)=>`${new Intl.NumberFormat("pt-BR").format(v)} km`;
