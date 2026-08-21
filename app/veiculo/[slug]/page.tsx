@@ -49,12 +49,12 @@ export default function Page(){
     }catch{}
   }
 
-  return <><Header/><main className="container py-8 sm:py-12">
+  return <><Header/><main className="container py-6 sm:py-12">
     <a href="/estoque" className="text-sm font-bold text-neutral-500">← Voltar ao estoque</a>
 
-    <div className="mt-6 grid gap-10 lg:grid-cols-[1.25fr_.75fr]">
+    <div className="mt-5 grid gap-7 sm:mt-6 sm:gap-10 lg:grid-cols-[1.25fr_.75fr]">
       <section>
-        <div className="overflow-hidden rounded-[28px] bg-neutral-100">
+        <div className="overflow-hidden rounded-[20px] bg-neutral-100 sm:rounded-[28px]">
           {imgs[active]?<img src={imgs[active].url} alt={`${title} - foto ${active+1}`} className="aspect-[16/10] w-full object-cover"/>
             :<div className="flex aspect-[16/10] items-center justify-center text-neutral-400">SEM FOTOS</div>}
         </div>
@@ -72,19 +72,19 @@ export default function Page(){
           {v.featured&&<span className="rounded-full bg-black px-3 py-1 text-xs font-bold text-white">Destaque</span>}
         </div>
         <p className="mt-5 text-sm font-bold text-neutral-500">{v.year}/{v.model_year||v.year} · {v.transmission}</p>
-        <h1 className="mt-2 text-4xl font-black tracking-tight">{title}</h1>
-        <p className="mt-7 text-4xl font-black">{money(v.price)}</p>
+        <h1 className="mt-2 text-[32px] font-black leading-[1.02] tracking-tight sm:text-4xl">{title}</h1>
+        <p className="mt-5 text-[32px] font-black sm:mt-7 sm:text-4xl">{money(v.price)}</p>
 
-        <div className="mt-7 grid grid-cols-2 gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-7 sm:gap-3">
           <div className="rounded-2xl bg-white p-4"><p className="text-xs font-bold uppercase text-neutral-400">Câmbio</p><b className="mt-1 block">{v.transmission}</b></div>
           <div className="rounded-2xl bg-white p-4"><p className="text-xs font-bold uppercase text-neutral-400">Combustível</p><b className="mt-1 block">{v.fuel}</b></div>
           <div className="rounded-2xl bg-white p-4"><p className="text-xs font-bold uppercase text-neutral-400">Cor</p><b className="mt-1 block">{v.color||"Não informado"}</b></div>
           <div className="rounded-2xl bg-white p-4"><p className="text-xs font-bold uppercase text-neutral-400">Ano</p><b className="mt-1 block">{v.year}/{v.model_year||v.year}</b></div>
         </div>
 
-        <div className="mt-5 grid grid-cols-[1fr_auto] gap-2">
+        <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
           <a target="_blank" rel="noreferrer" href={`https://wa.me/${wa}?text=${msg}`} className="btn-yellow rounded-2xl px-5 py-4 text-center font-black">Tenho interesse</a>
-          <button type="button" onClick={share} className="btn-outline-dark rounded-2xl px-5 py-4 font-bold">{copied?"Link copiado":"Compartilhar"}</button>
+          <button type="button" onClick={share} className="btn-outline-dark rounded-2xl px-5 py-4 text-center font-bold">{copied?"Link copiado":"Compartilhar"}</button>
         </div>
       </aside>
     </div>

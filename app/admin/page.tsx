@@ -82,7 +82,7 @@ export default function Admin(){
 
   async function logout(){await supabase.auth.signOut();window.location.href="/admin/login";}
 
-  return <AdminGuard><main className="container py-10 sm:py-12">
+  return <AdminGuard><main className="container py-7 sm:py-12">
     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
       <div><p className="text-xs font-black uppercase tracking-[.16em] text-[#9a8400]">Painel administrativo</p>
         <h1 className="mt-2 text-3xl font-black sm:text-4xl">Estoque LW Veículos</h1>
@@ -93,7 +93,7 @@ export default function Admin(){
       </div>
     </div>
 
-    <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:grid-cols-3 lg:grid-cols-6">
       {[["Total",stats.total],["Disponíveis",stats.available],["Rascunhos",stats.draft],["Vendidos",stats.sold],["Destaques",stats.featured],["Este mês",stats.month]].map(([label,value])=>
         <div key={String(label)} className="rounded-2xl border border-black/10 bg-white p-4">
           <p className="text-[11px] font-bold uppercase tracking-[.08em] text-neutral-500">{label}</p>
@@ -101,7 +101,7 @@ export default function Admin(){
         </div>)}
     </div>
 
-    <section className="mt-8 rounded-[24px] border border-black/10 bg-white p-4">
+    <section className="mt-6 rounded-[20px] border border-black/10 bg-white p-3 sm:mt-8 sm:rounded-[24px] sm:p-4">
       <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar por código, marca, modelo, versão ou ano..."
           className="w-full rounded-xl border border-black/10 px-4 py-3"/>
@@ -117,8 +117,8 @@ export default function Admin(){
       <p className="mt-3 text-xs text-neutral-500">{filtered.length} veículo(s) exibido(s)</p>
     </section>
 
-    <div className="mt-5 grid gap-4">
-      {filtered.map(v=><article key={v.id} className="rounded-[22px] border border-black/10 bg-white p-5">
+    <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4">
+      {filtered.map(v=><article key={v.id} className="rounded-[20px] border border-black/10 bg-white p-4 sm:rounded-[22px] sm:p-5">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -135,8 +135,8 @@ export default function Admin(){
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <a href={`/admin/veiculos/${v.id}`} className="btn-dark rounded-xl px-5 py-3 text-sm font-bold">Editar</a>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            <a href={`/admin/veiculos/${v.id}`} className="btn-dark col-span-2 rounded-xl px-5 py-3 text-center text-sm font-bold sm:col-auto">Editar</a>
             <button type="button" disabled={busy===v.id} onClick={()=>duplicateVehicle(v)} className="btn-outline-dark rounded-xl px-4 py-3 text-sm font-bold">Duplicar</button>
             {v.status==="available"
               ?<button type="button" disabled={busy===v.id} onClick={()=>patch(v.id,{status:"sold"} as any)} className="btn-outline-dark rounded-xl px-4 py-3 text-sm font-bold">Marcar vendido</button>
