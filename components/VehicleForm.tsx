@@ -100,10 +100,19 @@ function parseQuickText(raw:string) {
 
   const title = lines[0];
   const titleNorm = normalize(title);
+  const fullNorm = normalize(lines.join(" "));
 
   const transmission =
-    titleNorm.includes("automatico") ? "Automático" :
-    titleNorm.includes("manual") ? "Manual" : "";
+    /\b(manual|mecanico|mecanica)\b/.test(fullNorm) ? "Manual" :
+    /\b(automatico|automatica|aut|at)\b/.test(fullNorm) ? "Automático" : "";
+
+  const fuel =
+    /\bdiesel\b/.test(fullNorm) ? "Diesel" :
+    /\b(flex|flexfuel|flex fuel)\b/.test(fullNorm) ? "Flex" :
+    /\bgasolina\b/.test(fullNorm) ? "Gasolina" :
+    /\b(etanol|alcool)\b/.test(fullNorm) ? "Etanol" :
+    /\b(hibrido|hibrida)\b/.test(fullNorm) ? "Híbrido" :
+    /\b(eletrico|eletrica)\b/.test(fullNorm) ? "Elétrico" : "";
 
   const yearMatch = title.match(/\b(19|20)\d{2}\b/);
   const year = yearMatch ? Number(yearMatch[0]) : 0;
@@ -169,6 +178,7 @@ function parseQuickText(raw:string) {
     version,
     year,
     transmission,
+    fuel,
     price,
     optional_items: foundAmenities,
     description,
@@ -271,8 +281,8 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
     year: initial?.year || 2026,
     model_year: initial?.model_year || 2026,
     price: initial?.price || 0,
-    transmission: initial?.transmission || "Automático",
-    fuel: initial?.fuel || "Flex",
+    transmission: initial?.transmission || "",
+    fuel: initial?.fuel || "",
     color: initial?.color || "",
     description: initial?.description || "",
     optional_items: initial?.optional_items || [] as string[],
@@ -322,6 +332,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
     if (!form.year) items.push("ano");
     if (!parseBRL(priceText)) items.push("preço");
     if (!form.color) items.push("cor");
+    if (!form.transmission) items.push("câmbio");
     if (!form.fuel) items.push("combustível");
     return items;
   }, [form]);
@@ -389,6 +400,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
       model_year: parsed.year || current.model_year,
       price: parsed.price || current.price,
       transmission: parsed.transmission || current.transmission,
+      fuel: parsed.fuel || current.fuel,
       optional_items: parsed.optional_items.length ? parsed.optional_items : current.optional_items,
       description: parsed.description || current.description,
     }));
@@ -399,6 +411,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
       parsed.version && `versão: ${parsed.version}`,
       parsed.year && `ano: ${parsed.year}`,
       parsed.transmission && `câmbio: ${parsed.transmission}`,
+      parsed.fuel && `combustível: ${parsed.fuel}`,
       parsed.price && `preço: R$ ${parsed.price.toLocaleString("pt-BR")}`,
       parsed.optional_items.length && `${parsed.optional_items.length} comodidade(s)`,
     ].filter(Boolean).join(" · ");
@@ -435,6 +448,12 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
 
   async function save(e:FormEvent) {
     e.preventDefault();
+
+    if (!form.transmission || !form.fuel) {
+      setMessage("Confirme o câmbio e o combustível antes de publicar o veículo.");
+      return;
+    }
+
     setMessage("Salvando...");
 
     const payload = {
@@ -609,9 +628,13 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
           value={form.transmission}
           onChange={e => setField("transmission", e.target.value)}
         >
-          <option>Automático</option>
-          <option>Manual</option>
+          <option value="">Não identificado</option>
+          <option value="Automático">Automático</option>
+          <option value="Manual">Manual</option>
         </select>
+        {!form.transmission && (
+          <p className="mt-2 text-xs font-bold text-amber-700">Confirme esta informação antes de publicar.</p>
+        )}
       </label>
 
       <label>
@@ -621,12 +644,17 @@ export default function VehicleForm({initial}:{initial?:Vehicle}) {
           value={form.fuel}
           onChange={e => setField("fuel", e.target.value)}
         >
-          <option>Flex</option>
-          <option>Gasolina</option>
-          <option>Diesel</option>
-          <option>Elétrico</option>
-          <option>Híbrido</option>
+          <option value="">Não identificado</option>
+          <option value="Flex">Flex</option>
+          <option value="Gasolina">Gasolina</option>
+          <option value="Diesel">Diesel</option>
+          <option value="Etanol">Etanol</option>
+          <option value="Híbrido">Híbrido</option>
+          <option value="Elétrico">Elétrico</option>
         </select>
+        {!form.fuel && (
+          <p className="mt-2 text-xs font-bold text-amber-700">Confirme esta informação antes de publicar.</p>
+        )}
       </label>
 
       <div className="md:col-span-2">
