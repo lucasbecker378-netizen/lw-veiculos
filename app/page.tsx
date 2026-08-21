@@ -15,11 +15,25 @@ export default function Home(){
   const wa=process.env.NEXT_PUBLIC_WHATSAPP||"5551996118804";
 
   useEffect(()=>{
-    supabase.from("vehicles").select("*").eq("status","available")
-      .order("featured",{ascending:false}).order("featured_order",{ascending:true})
-      .order("created_at",{ascending:false}).limit(6)
-      .then(({data})=>setVehicles((data||[]) as Vehicle[]));
-  },[]);
+  supabase
+    .from("vehicles")
+    .select("*")
+    .eq("status","available")
+    .order("featured",{ascending:false})
+    .order("featured_order",{ascending:true})
+    .order("created_at",{ascending:false})
+    .limit(6)
+    .then(({data,error})=>{
+      if(error){
+        console.error("Erro ao carregar veículos da Home:", error);
+        setVehicles([]);
+      }else{
+        setVehicles((data||[]) as Vehicle[]);
+      }
+
+      setLoading(false);
+    });
+},[]);
 
   return <><Header/><main>
     <section className="relative min-h-[560px] overflow-hidden bg-black text-white sm:min-h-[680px]">
