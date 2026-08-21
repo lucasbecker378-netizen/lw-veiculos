@@ -13,11 +13,17 @@ export default function VehicleCard({vehicle}:{vehicle:Vehicle}) {
       .then(({data})=>setImage(data?.url??null));
   },[vehicle.id]);
 
+  const isRecent=Date.now()-new Date(vehicle.created_at).getTime()<=14*24*60*60*1000;
+
   return <article className="group overflow-hidden rounded-[22px] border border-black/10 bg-white shadow-[0_8px_30px_rgba(0,0,0,.04)] transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,.08)] sm:rounded-[26px]">
-    <a href={`/veiculo/${vehicle.slug}`} className="block overflow-hidden bg-neutral-100">
+    <a href={`/veiculo/${vehicle.slug}`} className="relative block overflow-hidden bg-neutral-100">
       {image
         ?<img src={image} alt={`${vehicle.brand} ${vehicle.model}`} className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.02] sm:aspect-[4/3]"/>
         :<div className="flex aspect-[16/10] items-center justify-center bg-neutral-200 text-sm font-bold text-neutral-400 sm:aspect-[4/3]">SEM FOTO</div>}
+      <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+        {vehicle.featured&&<span className="rounded-full bg-black/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.08em] text-white">Destaque</span>}
+        {isRecent&&<span className="rounded-full bg-[#ffe331] px-3 py-1.5 text-[10px] font-black uppercase tracking-[.08em] text-black">Recém-chegado</span>}
+      </div>
     </a>
     <div className="p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">

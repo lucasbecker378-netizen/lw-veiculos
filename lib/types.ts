@@ -15,11 +15,13 @@ export type Vehicle={
   fuel:string;
   color:string|null;
   description:string|null;
+  internal_notes:string|null;
   optional_items:string[]|null;
   status:VehicleStatus;
   featured:boolean;
   featured_order:number;
   created_at:string;
+  updated_at:string;
 };
 
 export type VehicleImage={

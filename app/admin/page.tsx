@@ -12,10 +12,11 @@ export default function Admin(){
   const [status,setStatus]=useState<"all"|VehicleStatus|"featured">("all");
   const [sort,setSort]=useState("recent");
   const [busy,setBusy]=useState<string|null>(null);
+  const [toast,setToast]=useState("");
 
   const load=()=>supabase.from("vehicles").select("*").order("created_at",{ascending:false})
     .then(({data})=>setVehicles((data||[]) as Vehicle[]));
-  useEffect(()=>{load()},[]);
+  useEffect(()=>{load();if(window.location.search.includes("saved=1")){setToast("Veículo salvo com sucesso.");window.history.replaceState({},"", "/admin");setTimeout(()=>setToast(""),3000)}},[]);
 
   const stats=useMemo(()=>{
     const now=new Date();
@@ -80,15 +81,26 @@ export default function Admin(){
     load();
   }
 
+  function exportCsv(){
+    const headers=["Código","Marca","Modelo","Versão","Ano","Ano modelo","Preço","Câmbio","Combustível","Cor","Status","Destaque","Criado em","Atualizado em","Observações internas"];
+    const escape=(v:any)=>`"${String(v??"").replace(/"/g,'""')}"`;
+    const rows=vehicles.map(v=>[v.vehicle_code,v.brand,v.model,v.version,v.year,v.model_year,v.price,v.transmission,v.fuel,v.color,v.status,v.featured?"Sim":"Não",v.created_at,v.updated_at,v.internal_notes].map(escape).join(";"));
+    const csv="\uFEFF"+headers.map(escape).join(";")+"\n"+rows.join("\n");
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=`estoque-lw-${new Date().toISOString().slice(0,10)}.csv`;link.click();URL.revokeObjectURL(url);
+  }
+
   async function logout(){await supabase.auth.signOut();window.location.href="/admin/login";}
 
   return <AdminGuard><main className="container py-7 sm:py-12">
+    {toast&&<div className="fixed right-4 top-24 z-[80] rounded-2xl bg-black px-5 py-4 text-sm font-black text-white shadow-xl">{toast}</div>}
     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
       <div><p className="text-xs font-black uppercase tracking-[.16em] text-[#9a8400]">Painel administrativo</p>
         <h1 className="mt-2 text-3xl font-black sm:text-4xl">Estoque LW Veículos</h1>
         <p className="mt-2 text-sm text-neutral-500">Cadastre, edite, publique e gerencie o estoque.</p></div>
       <div className="flex flex-wrap gap-3">
         <a href="/admin/veiculos/novo" className="btn-yellow rounded-xl px-5 py-3 font-black">+ Novo veículo</a>
+        <button onClick={exportCsv} className="btn-outline-dark rounded-xl px-5 py-3 font-bold">Exportar CSV</button>
         <button onClick={logout} className="btn-outline-dark rounded-xl px-5 py-3 font-bold">Sair</button>
       </div>
     </div>
@@ -133,10 +145,13 @@ export default function Admin(){
               <span>{v.year}/{v.model_year||v.year}</span><span>{v.transmission||"Câmbio não identificado"}</span>
               <span>{v.fuel||"Combustível não identificado"}</span><strong className="text-black">{money(v.price)}</strong>
             </div>
+            <p className="mt-2 text-xs text-neutral-400">Atualizado em {new Date(v.updated_at||v.created_at).toLocaleString("pt-BR")}</p>
+            {v.internal_notes&&<p className="mt-2 max-w-3xl truncate text-xs font-medium text-amber-700">Nota interna: {v.internal_notes}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             <a href={`/admin/veiculos/${v.id}`} className="btn-dark col-span-2 rounded-xl px-5 py-3 text-center text-sm font-bold sm:col-auto">Editar</a>
+            {v.status!=="draft"&&<a target="_blank" rel="noreferrer" href={`/veiculo/${v.slug}`} className="btn-outline-dark rounded-xl px-4 py-3 text-center text-sm font-bold">Abrir no site ↗</a>}
             <button type="button" disabled={busy===v.id} onClick={()=>duplicateVehicle(v)} className="btn-outline-dark rounded-xl px-4 py-3 text-sm font-bold">Duplicar</button>
             {v.status==="available"
               ?<button type="button" disabled={busy===v.id} onClick={()=>patch(v.id,{status:"sold"} as any)} className="btn-outline-dark rounded-xl px-4 py-3 text-sm font-bold">Marcar vendido</button>

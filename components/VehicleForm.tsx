@@ -193,6 +193,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}){
     fuel:initial?.fuel||"",
     color:initial?.color||"",
     description:initial?.description||"",
+    internal_notes:initial?.internal_notes||"",
     optional_items:initial?.optional_items||[] as string[],
     status:initial?.status||"draft",
     featured:initial?.featured||false,
@@ -375,7 +376,7 @@ export default function VehicleForm({initial}:{initial?:Vehicle}){
     }
 
     try{localStorage.removeItem(localKey);}catch{}
-    window.location.href="/admin";
+    window.location.href="/admin?saved=1";
   }
 
   function input(name:string,label:string,type="text"){
@@ -465,6 +466,14 @@ export default function VehicleForm({initial}:{initial?:Vehicle}){
         <p className="mt-2 text-sm leading-6 text-neutral-600">{seoPreview.description}</p>
       </div>}
     </div>
+
+    <label className="md:col-span-2 rounded-[22px] border border-black/10 bg-[#fffdf2] p-5">
+      <span className="text-sm font-black">Observações internas</span>
+      <p className="mt-1 text-xs text-neutral-500">Este conteúdo aparece somente no painel administrativo e nunca é exibido ao cliente.</p>
+      <textarea className="mt-3 min-h-28 w-full rounded-2xl border border-black/10 bg-white px-4 py-3"
+        value={form.internal_notes} onChange={e=>setField("internal_notes",e.target.value)}
+        placeholder="Ex.: documentação pendente, condição negociada, contato do proprietário..."/>
+    </label>
 
     <div className="md:col-span-2">
       <div className="flex flex-wrap items-end justify-between gap-3">

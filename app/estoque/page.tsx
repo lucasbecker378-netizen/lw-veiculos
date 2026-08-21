@@ -4,6 +4,8 @@ import {useEffect,useMemo,useState} from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import VehicleCard from "@/components/VehicleCard";
+import VehicleSkeleton from "@/components/VehicleSkeleton";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import {supabase} from "@/lib/supabase";
 import {Vehicle} from "@/lib/types";
 
@@ -20,10 +22,12 @@ export default function Estoque(){
   const [maxPrice,setMaxPrice]=useState(200000);
   const [amenities,setAmenities]=useState<string[]>([]);
   const [filtersOpen,setFiltersOpen]=useState(false);
+  const [sort,setSort]=useState("recent");
+  const [loading,setLoading]=useState(true);
 
   useEffect(()=>{
     supabase.from("vehicles").select("*").eq("status","available").order("created_at",{ascending:false})
-      .then(({data})=>setVehicles((data||[]) as Vehicle[]));
+      .then(({data})=>{setVehicles((data||[]) as Vehicle[]);setLoading(false)});
   },[]);
 
   const brands=useMemo(()=>[...new Set(vehicles.map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR")),[vehicles]);
@@ -35,10 +39,17 @@ export default function Estoque(){
   useEffect(()=>setMaxPrice(priceCeiling),[priceCeiling]);
 
   const formattedMaxPrice=new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(maxPrice);
-  const filtered=useMemo(()=>vehicles.filter(v=>{
-    const items=v.optional_items||[];
-    return Number(v.price)<=maxPrice&&(!brand||v.brand===brand)&&(!transmission||v.transmission===transmission)&&amenities.every(x=>items.includes(x));
-  }),[vehicles,maxPrice,brand,transmission,amenities]);
+  const filtered=useMemo(()=>{
+    const list=vehicles.filter(v=>{
+      const items=v.optional_items||[];
+      return Number(v.price)<=maxPrice&&(!brand||v.brand===brand)&&(!transmission||v.transmission===transmission)&&amenities.every(x=>items.includes(x));
+    });
+    return [...list].sort((a,b)=>{
+      if(sort==="price-asc")return Number(a.price)-Number(b.price);
+      if(sort==="price-desc")return Number(b.price)-Number(a.price);
+      return new Date(b.created_at).getTime()-new Date(a.created_at).getTime();
+    });
+  },[vehicles,maxPrice,brand,transmission,amenities,sort]);
 
   function toggleAmenity(item:string){setAmenities(c=>c.includes(item)?c.filter(x=>x!==item):[...c,item]);}
   function clearFilters(){setBrand("");setTransmission("");setMaxPrice(priceCeiling);setAmenities([]);}
@@ -113,18 +124,23 @@ export default function Estoque(){
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-4 sm:mt-8">
-        <p className="text-sm text-neutral-500"><b className="text-black">{filtered.length}</b> veículo(s)</p>
-        {hasFilters&&<p className="text-[10px] font-black uppercase tracking-[.1em] text-[#9a8400] sm:text-xs">Filtros ativos</p>}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 sm:mt-8">
+        <div><p className="text-sm text-neutral-500"><b className="text-black">{filtered.length}</b> veículo(s)</p>
+          {hasFilters&&<p className="mt-1 text-[10px] font-black uppercase tracking-[.1em] text-[#9a8400] sm:text-xs">Filtros ativos</p>}</div>
+        <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-bold">
+          <option value="recent">Mais recentes</option><option value="price-asc">Menor preço</option><option value="price-desc">Maior preço</option>
+        </select>
       </div>
 
-      {filtered.length
+      {loading
+        ?<div className="mt-5 grid gap-5 sm:mt-6 md:grid-cols-2 lg:grid-cols-3">{[0,1,2,3,4,5].map(x=><VehicleSkeleton key={x}/>)}</div>
+        :filtered.length
         ?<div className="mt-5 grid gap-5 sm:mt-6 md:grid-cols-2 lg:grid-cols-3">{filtered.map(v=><VehicleCard key={v.id} vehicle={v}/>)}</div>
         :<div className="mt-6 rounded-[22px] border border-dashed border-black/20 bg-white p-6 sm:mt-8 sm:rounded-[28px] sm:p-10">
           <h2 className="text-xl font-black sm:text-2xl">Nenhum veículo encontrado.</h2>
           <p className="mt-2 text-sm leading-6 text-neutral-600 sm:text-base">Tente remover uma comodidade ou aumentar o valor máximo.</p>
-          <button onClick={clearFilters} className="btn-dark mt-5 rounded-xl px-5 py-3.5 font-bold sm:mt-6 sm:rounded-full sm:px-6 sm:py-4">Limpar filtros</button>
+          <div className="mt-5 flex flex-wrap gap-2"><button onClick={clearFilters} className="btn-dark rounded-xl px-5 py-3.5 font-bold sm:rounded-full sm:px-6 sm:py-4">Limpar filtros</button><a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP||"5551996118804"}`} target="_blank" rel="noreferrer" className="btn-outline-dark rounded-xl px-5 py-3.5 font-bold sm:rounded-full sm:px-6 sm:py-4">Consultar oportunidades</a></div>
         </div>}
     </section>
-  </main><Footer/></>;
+  </main><WhatsAppFloat/><Footer/></>;
 }

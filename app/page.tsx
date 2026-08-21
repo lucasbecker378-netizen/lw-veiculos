@@ -4,11 +4,14 @@ import {useEffect,useState} from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import VehicleCard from "@/components/VehicleCard";
+import VehicleSkeleton from "@/components/VehicleSkeleton";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import {supabase} from "@/lib/supabase";
 import {Vehicle} from "@/lib/types";
 
 export default function Home(){
   const [vehicles,setVehicles]=useState<Vehicle[]>([]);
+  const [loading,setLoading]=useState(true);
   const wa=process.env.NEXT_PUBLIC_WHATSAPP||"5551996118804";
 
   useEffect(()=>{
@@ -54,14 +57,26 @@ export default function Home(){
         <a href="/estoque" className="text-sm font-black">Ver estoque completo →</a>
       </div>
 
-      {vehicles.length
-        ?<div className="mt-7 grid gap-5 sm:mt-10 md:grid-cols-2 lg:grid-cols-3">{vehicles.map(x=><VehicleCard key={x.id} vehicle={x}/>)}</div>
+      {loading
+        ?<div className="mt-7 grid gap-5 sm:mt-10 md:grid-cols-2 lg:grid-cols-3">{[0,1,2].map(x=><VehicleSkeleton key={x}/>)}</div>
+        :vehicles.length
+        ?<div className="mt-7 grid gap-5 sm:mt-10 md:grid-cols-2 lg:grid-cols-3">{vehicles.slice(0,6).map(x=><VehicleCard key={x.id} vehicle={x}/>)}</div>
         :<div className="mt-7 rounded-[22px] border border-dashed border-black/20 bg-white p-6 sm:mt-10 sm:rounded-[28px] sm:p-10">
           <p className="text-xs font-black uppercase tracking-[.16em] text-[#9a8400]">Estoque em atualização</p>
           <h3 className="mt-3 text-2xl font-black sm:text-3xl">Novos veículos serão publicados em breve.</h3>
           <p className="mt-3 leading-6 text-neutral-600">Fale com a equipe para consultar as oportunidades disponíveis hoje.</p>
         </div>}
     </section>
+
+    {!loading&&vehicles.length>3&&<section className="border-t border-black/10 bg-white py-14 sm:py-20">
+      <div className="container">
+        <div className="flex items-end justify-between gap-4">
+          <div><p className="text-[11px] font-black uppercase tracking-[.18em] text-[#9a8400]">Novidades no estoque</p><h2 className="mt-2 text-[34px] font-black tracking-tight sm:text-5xl">Últimos adicionados</h2></div>
+          <a href="/estoque" className="hidden text-sm font-black sm:block">Ver todos →</a>
+        </div>
+        <div className="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{[...vehicles].sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,3).map(x=><VehicleCard key={`recent-${x.id}`} vehicle={x}/>)}</div>
+      </div>
+    </section>}
 
     <section id="sobre" className="bg-[#0b0b0b] py-14 text-white sm:py-20">
       <div className="container grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
@@ -130,5 +145,5 @@ export default function Home(){
         </div>
       </div>
     </section>
-  </main><Footer/></>;
+  </main><WhatsAppFloat/><Footer/></>;
 }
