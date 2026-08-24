@@ -13,7 +13,7 @@ export default function VehicleCard({vehicle}:{vehicle:Vehicle}) {
       .then(({data})=>setImage(data?.url??null));
   },[vehicle.id]);
 
-  const isRecent=Date.now()-new Date(vehicle.created_at).getTime()<=14*24*60*60*1000;
+  const isRecent=Date.now()-new Date(vehicle.created_at).getTime()<=7*24*60*60*1000;
 
   return <article className="group overflow-hidden rounded-[22px] border border-black/10 bg-white shadow-[0_8px_30px_rgba(0,0,0,.04)] transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,.08)] sm:rounded-[26px]">
     <a href={`/veiculo/${vehicle.slug}`} className="relative block overflow-hidden bg-neutral-100">
