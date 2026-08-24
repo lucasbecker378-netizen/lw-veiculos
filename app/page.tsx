@@ -146,12 +146,25 @@ export default function Home(){
 
           <div className="rounded-[24px] bg-[#f3f3ef] p-5 sm:rounded-[32px] sm:p-8">
             <p className="text-[11px] font-black uppercase tracking-[.18em] text-neutral-500 sm:text-xs">Horário de funcionamento</p>
-            <div className="mt-5 grid gap-4 text-sm sm:mt-6">
-              <div className="flex justify-between gap-4 border-b border-black/10 pb-4"><b>Segunda</b><span className="text-right">08:00–12:00<br className="sm:hidden"/> · 13:30–18:00</span></div>
-              <div className="flex justify-between gap-4 border-b border-black/10 pb-4"><b>Terça a sexta</b><span className="text-right">08:00–18:00</span></div>
-              <div className="flex justify-between gap-4 border-b border-black/10 pb-4"><b>Sábado</b><span className="text-right">08:00–12:00</span></div>
-              <div className="flex justify-between gap-4"><b>Domingo</b><span className="text-right">Fechado</span></div>
-            </div>
+           <div className="mt-5 grid gap-4 text-sm sm:mt-6">
+  <div className="flex justify-between gap-4 border-b border-black/10 pb-4">
+    <b>Segunda a sexta</b>
+    <span className="text-right">
+      08:00–12:00<br/>
+      13:30–18:00
+    </span>
+  </div>
+
+  <div className="flex justify-between gap-4 border-b border-black/10 pb-4">
+    <b>Sábado</b>
+    <span className="text-right">08:00–12:00</span>
+  </div>
+
+  <div className="flex justify-between gap-4">
+    <b>Domingo</b>
+    <span className="text-right">Fechado</span>
+  </div>
+</div>
             <a target="_blank" rel="noreferrer" href={`https://wa.me/${wa}`} className="btn-yellow mt-6 block rounded-2xl px-5 py-4 text-center font-black sm:mt-8">
               (51) 99611-8804 · WhatsApp
             </a>
