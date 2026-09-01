@@ -100,6 +100,9 @@ export default function Admin(){
         <p className="mt-2 text-sm text-neutral-500">Cadastre, edite, publique e gerencie o estoque.</p></div>
       <div className="flex flex-wrap gap-3">
         <a href="/admin/veiculos/novo" className="btn-yellow rounded-xl px-5 py-3 font-black">+ Novo veículo</a>
+        <a href="/admin/ordenar" className="btn-outline-dark rounded-xl px-5 py-3 font-bold">
+  Ordenar estoque
+</a>
         <button onClick={exportCsv} className="btn-outline-dark rounded-xl px-5 py-3 font-bold">Exportar CSV</button>
         <button onClick={logout} className="btn-outline-dark rounded-xl px-5 py-3 font-bold">Sair</button>
       </div>

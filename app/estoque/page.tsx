@@ -22,12 +22,17 @@ export default function Estoque(){
   const [maxPrice,setMaxPrice]=useState(200000);
   const [amenities,setAmenities]=useState<string[]>([]);
   const [filtersOpen,setFiltersOpen]=useState(false);
-  const [sort,setSort]=useState("recent");
+ const [sort,setSort]=useState("manual");
   const [loading,setLoading]=useState(true);
 
   useEffect(()=>{
-    supabase.from("vehicles").select("*").eq("status","available").order("created_at",{ascending:false})
-      .then(({data})=>{setVehicles((data||[]) as Vehicle[]);setLoading(false)});
+supabase
+  .from("vehicles")
+  .select("*")
+  .eq("status","available")
+  .order("display_order",{ascending:true,nullsFirst:false})
+  .order("created_at",{ascending:false})
+        .then(({data})=>{setVehicles((data||[]) as Vehicle[]);setLoading(false)});
   },[]);
 
   const brands=useMemo(()=>[...new Set(vehicles.map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR")),[vehicles]);
@@ -45,10 +50,11 @@ export default function Estoque(){
       return Number(v.price)<=maxPrice&&(!brand||v.brand===brand)&&(!transmission||v.transmission===transmission)&&amenities.every(x=>items.includes(x));
     });
     return [...list].sort((a,b)=>{
-      if(sort==="price-asc")return Number(a.price)-Number(b.price);
-      if(sort==="price-desc")return Number(b.price)-Number(a.price);
-      return new Date(b.created_at).getTime()-new Date(a.created_at).getTime();
-    });
+  if(sort==="manual")return Number(a.display_order??999999)-Number(b.display_order??999999);
+  if(sort==="price-asc")return Number(a.price)-Number(b.price);
+  if(sort==="price-desc")return Number(b.price)-Number(a.price);
+  return new Date(b.created_at).getTime()-new Date(a.created_at).getTime();
+});
   },[vehicles,maxPrice,brand,transmission,amenities,sort]);
 
   function toggleAmenity(item:string){setAmenities(c=>c.includes(item)?c.filter(x=>x!==item):[...c,item]);}
@@ -128,7 +134,7 @@ export default function Estoque(){
         <div><p className="text-sm text-neutral-500"><b className="text-black">{filtered.length}</b> veículo(s)</p>
           {hasFilters&&<p className="mt-1 text-[10px] font-black uppercase tracking-[.1em] text-[#9a8400] sm:text-xs">Filtros ativos</p>}</div>
         <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-bold">
-          <option value="recent">Mais recentes</option><option value="price-asc">Menor preço</option><option value="price-desc">Maior preço</option>
+        <option value="manual">Ordem da loja</option>  <option value="recent">Mais recentes</option><option value="price-asc">Menor preço</option><option value="price-desc">Maior preço</option>
         </select>
       </div>
 

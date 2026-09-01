@@ -20,6 +20,7 @@ export type Vehicle={
   status:VehicleStatus;
   featured:boolean;
   featured_order:number;
+  display_order:number|null;
   created_at:string;
   updated_at:string;
 };

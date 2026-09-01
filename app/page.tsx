@@ -19,10 +19,11 @@ export default function Home(){
     .from("vehicles")
     .select("*")
     .eq("status","available")
-    .order("featured",{ascending:false})
-    .order("featured_order",{ascending:true})
-    .order("created_at",{ascending:false})
-    .limit(6)
+  .order("featured",{ascending:false})
+.order("featured_order",{ascending:true})
+.order("display_order",{ascending:true,nullsFirst:false})
+.order("created_at",{ascending:false})
+.limit(6)
     .then(({data,error})=>{
       if(error){
         console.error("Erro ao carregar veículos da Home:", error);
